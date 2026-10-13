@@ -45,12 +45,14 @@ export function SuggestPanel({ weekStart, participants, lastServings, onPlan }: 
   const [onlineMessage, setOnlineMessage] = useState<string | null>(null);
   const [onlineStarted, setOnlineStarted] = useState(false);
   const closeEvents = useRef<(() => void) | null>(null);
+  // set as soon as the user changes anything: late-arriving saved preferences must not overwrite their input
+  const touched = useRef(false);
 
   useEffect(() => {
     let alive = true;
     constraintsApi.getPrefs().then(
       (p) => {
-        if (!alive) return;
+        if (!alive || touched.current) return;
         setCalories(p.calorieLimit === null ? '' : String(p.calorieLimit));
         setBudget(p.budgetLimit === null ? '' : String(p.budgetLimit));
         setTime(p.timeLimit === null ? '' : String(p.timeLimit));
@@ -70,6 +72,7 @@ export function SuggestPanel({ weekStart, participants, lastServings, onPlan }: 
   useEffect(() => () => closeEvents.current?.(), []);
 
   function tick(ids: number[]) {
+    touched.current = true;
     setTicked(ids);
     setServings(String(ids.length > 0 ? ids.length : lastServings));
   }
@@ -142,6 +145,7 @@ export function SuggestPanel({ weekStart, participants, lastServings, onPlan }: 
   }
 
   function clear() {
+    touched.current = true;
     closeEvents.current?.();
     closeEvents.current = null;
     setCalories('');
@@ -179,20 +183,20 @@ export function SuggestPanel({ weekStart, participants, lastServings, onPlan }: 
       <div className="suggest-form">
         <label>
           Calorie limit
-          <input type="number" min={1} step="any" value={calories} onChange={(e) => setCalories(e.target.value)} />
+          <input type="number" min={1} step="any" value={calories} onChange={(e) => { touched.current = true; setCalories(e.target.value); }} />
         </label>
         <label>
           Budget limit (EUR)
-          <input type="number" min={0} step="any" value={budget} onChange={(e) => setBudget(e.target.value)} />
+          <input type="number" min={0} step="any" value={budget} onChange={(e) => { touched.current = true; setBudget(e.target.value); }} />
         </label>
         <label>
           Cooking time limit (min)
-          <input type="number" min={1} step={1} value={time} onChange={(e) => setTime(e.target.value)} />
+          <input type="number" min={1} step={1} value={time} onChange={(e) => { touched.current = true; setTime(e.target.value); }} />
         </label>
         <ParticipantTicks participants={participants} ticked={ticked} onChange={tick} />
         <label>
           Servings
-          <input type="number" min={1} max={20} step={1} value={servings} onChange={(e) => setServings(e.target.value)} />
+          <input type="number" min={1} max={20} step={1} value={servings} onChange={(e) => { touched.current = true; setServings(e.target.value); }} />
         </label>
         <div className="actions">
           <button type="button" onClick={() => void show()}>Show suggestion</button>

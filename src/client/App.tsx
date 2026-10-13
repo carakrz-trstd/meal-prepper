@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Link, NavLink, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { api } from './api';
 import { MealForm, type SaveHandler } from './MealForm';
 import { MealLibraryPage } from './MealLibraryPage';
@@ -56,15 +56,19 @@ export function App() {
   return (
     <BrowserRouter>
       <header className="app-header">
-        <strong>Meal planner</strong>
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">⚔</span>
+          <strong>Meal Prepper</strong>
+          <small>Provisions for the party</small>
+        </div>
         <nav aria-label="Main">
-          <Link to="/">Meals</Link>
-          <Link to="/meals/new">Add meal</Link>
-          <Link to="/import">Import recipe</Link>
-          <Link to="/plan">Plan</Link>
-          <Link to="/shopping">Shopping list</Link>
-          <Link to="/participants">Participants</Link>
-          <Link to="/blacklist">Blacklist</Link>
+          <NavLink to="/" end>Meals</NavLink>
+          <NavLink to="/meals/new">Add meal</NavLink>
+          <NavLink to="/import">Import recipe</NavLink>
+          <NavLink to="/plan">Plan</NavLink>
+          <NavLink to="/shopping">Shopping list</NavLink>
+          <NavLink to="/participants">Participants</NavLink>
+          <NavLink to="/blacklist">Blacklist</NavLink>
         </nav>
       </header>
       <main>

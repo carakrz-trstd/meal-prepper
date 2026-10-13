@@ -42,6 +42,19 @@ describe('SuggestPanel (T-9, AC-1, AC-5, AC-9, AC-14, AC-15, AC-22, AC-26)', () 
     expect(screen.getByLabelText('Servings')).toHaveValue(1); // one participant ticked
   });
 
+  it('late-arriving saved preferences never overwrite what the user has already typed (AC-26)', async () => {
+    let resolvePrefs!: (p: typeof emptyPrefs) => void;
+    api.getPrefs.mockReturnValue(new Promise((resolve) => { resolvePrefs = resolve; }));
+    const user = userEvent.setup();
+    renderPanel();
+    await user.type(await screen.findByLabelText('Calorie limit'), '700');
+    resolvePrefs({ calorieLimit: 500, budgetLimit: 8, timeLimit: 45, participantIds: [1] });
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.getByLabelText('Calorie limit')).toHaveValue(700);
+    expect(screen.getByLabelText('Budget limit (EUR)')).toHaveValue(null);
+    expect(screen.getByLabelText('Anna')).not.toBeChecked();
+  });
+
   it('"Clear" empties the limits and unticks everybody (AC-26)', async () => {
     api.getPrefs.mockResolvedValue({ calorieLimit: 500, budgetLimit: 8, timeLimit: 45, participantIds: [1, 2] });
     const user = userEvent.setup();
