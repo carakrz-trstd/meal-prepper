@@ -8,6 +8,7 @@ import { WeekPlanPage } from './plan/WeekPlanPage';
 import { ShoppingListPage } from './plan/ShoppingListPage';
 import { ParticipantsPage } from './constraints/ParticipantsPage';
 import { BlacklistPage } from './constraints/BlacklistPage';
+import { ThemeToggle } from './ThemeToggle';
 import type { Meal } from '../shared/types';
 
 function AddMealPage() {
@@ -70,6 +71,7 @@ export function App() {
           <NavLink to="/participants">Participants</NavLink>
           <NavLink to="/blacklist">Blacklist</NavLink>
         </nav>
+        <ThemeToggle />
       </header>
       <main>
         <Routes>
