@@ -441,6 +441,93 @@ button[aria-pressed='true'] {
 .empty-state { padding: 1rem 0; font-style: italic; }
 .empty-state::before { content: '✦ ' / ''; color: var(--accent); }
 
+/* ---------- stat blocks: a meal as a monster card ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.35rem 1rem; margin: 0.4rem 0; }
+.stat {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.25rem 0.55rem;
+  border-left: 3px solid var(--accent);
+  background: var(--fieldset-bg);
+  font-size: 0.95rem;
+}
+.meter { display: block; height: 0.4rem; border-radius: 99px; background: var(--paper-3); border: 1px solid var(--border); overflow: hidden; }
+.meter::before {
+  content: '';
+  display: block;
+  width: var(--pct, 0%);
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-light));
+  transition: width 0.5s ease-out;
+}
+.loot { list-style: none; display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0; margin: 0.4rem 0 0; }
+.chip {
+  display: inline-block;
+  padding: 0.12rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--card-1);
+  font-size: 0.9rem;
+}
+.chip small { color: var(--ink-soft); }
+
+/* ---------- the pantry and drag and drop ---------- */
+.pantry { margin: 0 0 1.1rem; padding: 0.7rem 0.95rem; border: 1px dashed var(--border); border-radius: var(--radius); background: var(--fieldset-bg); }
+.pantry h2 { margin-bottom: 0.2rem; }
+.pantry label { display: inline-grid; gap: 0.2rem; margin: 0.4rem 0; }
+.pantry-list { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0; margin: 0.4rem 0 0; max-height: 9.5rem; overflow: auto; }
+.pantry-list .chip { cursor: grab; user-select: none; }
+.pantry-list .chip:active { cursor: grabbing; }
+.day-card .meal-name[draggable='true'] { cursor: grab; }
+.day-card .meal-name[draggable='true']::before { content: '⠿ ' / ''; color: var(--ink-soft); }
+.day-card.dragging { opacity: 0.55; }
+.day-card.drop-ready { outline: 2px dashed var(--accent); outline-offset: 2px; animation: drop-pulse 1.4s ease-in-out infinite; }
+.day-card.drop-over { outline-style: solid; outline-color: var(--accent-light); background: var(--paper-glow); animation: none; transform: translateY(-2px); }
+.move { display: inline-flex; gap: 0.35rem; align-items: center; font-size: 0.9rem; }
+.move select { font-size: 0.9rem; }
+
+/* ---------- toasts ---------- */
+.toasts { position: fixed; z-index: 60; left: 50%; bottom: 1rem; transform: translateX(-50%); display: grid; gap: 0.5rem; width: min(30rem, calc(100vw - 2rem)); pointer-events: none; }
+.toast {
+  pointer-events: auto;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.55rem 0.8rem;
+  color: var(--nav-text);
+  background: linear-gradient(180deg, var(--header-1), var(--header-2));
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+  animation: toast-in 0.25s ease-out;
+}
+.toast-message { flex: 1; }
+.toast-action { color: var(--on-accent); background: linear-gradient(180deg, var(--accent-light), var(--accent)); border: 1px solid var(--accent); border-radius: var(--radius); padding: 0.2rem 0.7rem; font-weight: 700; cursor: pointer; }
+.toast-close { color: var(--nav-text); background: none; border: 0; font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 0 0.3rem; }
+
+/* ---------- the bag: shopping progress ---------- */
+.bag { margin: 0.6rem 0; }
+.progress { height: 0.8rem; border-radius: 99px; border: 1px solid var(--border-strong); background: var(--paper-3); overflow: hidden; }
+.progress-fill { display: block; width: var(--pct, 0%); height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-light)); transition: width 0.4s ease-out; }
+.victory { font-family: var(--font-title); font-weight: 700; color: var(--heading); animation: victory-pop 0.5s ease-out; }
+.victory::before { content: '✦ ' / ''; color: var(--accent); }
+
+/* ---------- motion (all of it is switched off below for people who ask for less) ---------- */
+@keyframes toast-in { from { opacity: 0; transform: translateY(0.8rem); } to { opacity: 1; transform: none; } }
+@keyframes unroll { from { opacity: 0; transform: scaleY(0.88) translateY(-0.6rem); } to { opacity: 1; transform: none; } }
+@keyframes drop-pulse { 0%, 100% { outline-color: var(--accent); } 50% { outline-color: var(--accent-light); } }
+@keyframes victory-pop { 0% { transform: scale(0.85); opacity: 0; } 70% { transform: scale(1.06); } 100% { transform: none; opacity: 1; } }
+@keyframes flicker { 0%, 100% { opacity: 1; } 42% { opacity: 0.8; } 50% { opacity: 1; } 71% { opacity: 0.88; } }
+.dialog { transform-origin: top center; animation: unroll 0.25s ease-out; }
+.meal-row, .day-card, .suggestion-card { transition: transform 0.15s ease-out, box-shadow 0.15s ease-out; }
+.meal-row:hover, .suggestion-card:hover { transform: translateY(-2px); }
+:root[data-theme='dungeon'] .brand-mark { animation: flicker 3.2s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .meal-row:hover, .suggestion-card:hover, .day-card.drop-over { transform: none; }
+}
+
 @media (max-width: 40rem) {
   main { margin: 0; border-radius: 0; padding: 1rem; }
   .app-header { padding: 0.6rem 1rem; }
@@ -450,7 +537,7 @@ button[aria-pressed='true'] {
 /* ---------- print: a plain list, no decoration, whatever the theme ---------- */
 @media print {
   :root[data-theme] { --ink: #000; --ink-soft: #333; --heading: #000; --danger: #000; --link: #000; }
-  .app-header, .no-print, .dialog-backdrop { display: none !important; }
+  .app-header, .no-print, .dialog-backdrop, .bag { display: none !important; }
   html, body, :root[data-theme] body { background: #fff; background-image: none; color: #000; }
   main { max-width: none; margin: 0; padding: 0; background: #fff; border: 0; box-shadow: none; }
   h1 { background: none; }

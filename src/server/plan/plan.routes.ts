@@ -44,6 +44,14 @@ export function registerPlanRoutes(app: FastifyInstance, plan: PlanService): voi
     async (req, reply) => run(reply, () => plan.changeServings(req.params.weekStart, day(req.params), req.body?.servings as number)),
   );
 
+  app.post<{ Params: { weekStart: string }; Body: { fromDay?: unknown; toDay?: unknown } }>('/api/plan/:weekStart/moves', async (req, reply) => {
+    const { fromDay, toDay } = req.body ?? {};
+    if (!Number.isInteger(fromDay) || !Number.isInteger(toDay)) {
+      return reply.code(400).send({ code: 'INVALID_DAY', message: 'fromDay and toDay must be whole numbers from 1 to 7.' });
+    }
+    return run(reply, () => plan.moveDay(req.params.weekStart, fromDay as number, toDay as number));
+  });
+
   app.delete<{ Params: { weekStart: string; day: string } }>('/api/plan/:weekStart/days/:day', async (req, reply) =>
     run(reply, () => plan.removeDay(req.params.weekStart, day(req.params))),
   );

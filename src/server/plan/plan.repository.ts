@@ -58,6 +58,18 @@ export class PlanRepository {
     this.db.prepare('UPDATE planned_meal SET meal_id = ?, servings = ? WHERE id = ?').run(mealId, servings, id);
   }
 
+  moveTo(id: number, day: number): void {
+    this.db.prepare('UPDATE planned_meal SET day_of_week = ? WHERE id = ?').run(day, id);
+  }
+
+  participantIdsOf(plannedMealId: number): number[] {
+    return (
+      this.db.prepare('SELECT participant_id AS id FROM planned_meal_participant WHERE planned_meal_id = ? ORDER BY participant_id').all(plannedMealId) as {
+        id: number;
+      }[]
+    ).map((r) => r.id);
+  }
+
   updateServings(id: number, servings: number): void {
     this.db.prepare('UPDATE planned_meal SET servings = ? WHERE id = ?').run(servings, id);
   }

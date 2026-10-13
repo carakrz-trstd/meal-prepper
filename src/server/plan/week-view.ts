@@ -42,6 +42,7 @@ export function buildWeekView(repo: PlanRepository, weekStart: string): WeekView
             caloriesPerServing: r.caloriesPerServing,
             totalCostEur: r.totalCostEur === null ? null : round2((r.totalCostEur * r.servings) / r.baseServings),
             totalMinutes: r.prepMinutes + r.cookMinutes,
+            participantIds: repo.participantIdsOf(r.id),
           }
         : null,
     };

@@ -25,6 +25,8 @@ interface Props {
   /** Epic 3: participants, dietary/blacklist warning, "Suggest a meal" and online recipes. Needs `weekStart`. */
   constraints?: boolean;
   weekStart?: string;
+  /** a meal that was already chosen (drag and drop): the dialog starts at the servings step */
+  initialMeal?: { id: number; name: string };
 }
 
 type Step = 'list' | 'suggest' | 'review' | 'servings' | 'warning' | 'confirm';
@@ -34,14 +36,14 @@ const SERVINGS_ERROR = 'Servings must be a whole number from 1 to 20.';
 const hasFindings = (c: MealCheckResult) => c.violations.length > 0 || c.blacklisted.length > 0 || c.unknownIngredients.length > 0;
 
 /** Dialog to choose a meal, enter its servings and participants and (when replacing) confirm the replacement (AC-1..5, 8, 11, 13, 15, 18, 20, 21, 25). */
-export function MealPicker({ day, days, lastServings, replacing, onConfirm, onClose, constraints = false, weekStart }: Props) {
+export function MealPicker({ day, days, lastServings, replacing, onConfirm, onClose, constraints = false, weekStart, initialMeal }: Props) {
   const [meals, setMeals] = useState<Meal[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [favouritesOnly, setFavouritesOnly] = useState(false);
-  const [chosen, setChosen] = useState<{ id: number; name: string } | null>(null);
+  const [chosen, setChosen] = useState<{ id: number; name: string } | null>(initialMeal ?? null);
   const [servings, setServings] = useState(String(lastServings));
-  const [step, setStep] = useState<Step>('list');
+  const [step, setStep] = useState<Step>(initialMeal ? 'servings' : 'list');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

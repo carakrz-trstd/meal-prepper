@@ -19,6 +19,7 @@ export function week(over: Partial<WeekView> = {}, entries: Record<number, Parti
             caloriesPerServing: 600,
             totalCostEur: 8,
             totalMinutes: 35,
+            participantIds: [],
             ...entries[day],
           }
         : null,

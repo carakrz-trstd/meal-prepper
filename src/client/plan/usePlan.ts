@@ -67,6 +67,7 @@ export function usePlan(weekStart: string) {
       mutate(() => planApi.planDay(weekStart, day, input)),
     changeServings: (day: number, servings: number) => mutate(() => planApi.changeServings(weekStart, day, servings)),
     removeDay: (day: number) => mutate(() => planApi.removeDay(weekStart, day)),
+    moveDay: (fromDay: number, toDay: number) => mutate(() => planApi.moveDay(weekStart, fromDay, toDay)),
     setTick: (entryId: string, ticked: boolean) => mutate(() => planApi.setTick(weekStart, entryId, ticked)),
   };
 }

@@ -44,6 +44,9 @@ export const planApi = {
   changeServings: (weekStart: string, day: number, servings: number) =>
     call<WeekView>(`${base(weekStart)}/days/${day}`, json('PATCH', { servings })),
   removeDay: (weekStart: string, day: number) => call<WeekView>(`${base(weekStart)}/days/${day}`, { method: 'DELETE' }),
+  /** moves the meal of `fromDay` to `toDay`; if `toDay` is taken the two meals swap */
+  moveDay: (weekStart: string, fromDay: number, toDay: number) =>
+    call<WeekView>(`${base(weekStart)}/moves`, json('POST', { fromDay, toDay })),
   setTick: (weekStart: string, entryId: string, ticked: boolean) =>
     call<WeekView>(`${base(weekStart)}/ticks`, json('PUT', { entryId, ticked })),
   usage: (mealId: number) => call<{ plannedCount: number }>(`/api/plan/usage/${mealId}`),

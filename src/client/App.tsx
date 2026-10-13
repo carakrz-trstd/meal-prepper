@@ -9,6 +9,7 @@ import { ShoppingListPage } from './plan/ShoppingListPage';
 import { ParticipantsPage } from './constraints/ParticipantsPage';
 import { BlacklistPage } from './constraints/BlacklistPage';
 import { ThemeToggle } from './ThemeToggle';
+import { ToastProvider } from './toast';
 import type { Meal } from '../shared/types';
 
 function AddMealPage() {
@@ -55,6 +56,7 @@ function EditMealPage() {
 
 export function App() {
   return (
+    <ToastProvider>
     <BrowserRouter>
       <header className="app-header">
         <div className="brand">
@@ -87,5 +89,6 @@ export function App() {
         </Routes>
       </main>
     </BrowserRouter>
+    </ToastProvider>
   );
 }

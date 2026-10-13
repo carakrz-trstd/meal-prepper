@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDate, weekdayName } from '../../shared/week';
 import { formatQuantity } from '../../shared/unit-conversion';
@@ -24,6 +24,9 @@ export function ShoppingListPage() {
     });
   }
 
+  const total = view?.shopping.length ?? 0;
+  const inBag = view?.shopping.filter((e) => pending[e.id] ?? e.ticked).length ?? 0;
+
   return (
     <section>
       <h1>Shopping list</h1>
@@ -42,6 +45,21 @@ export function ShoppingListPage() {
       {view && view.shopping.length > 0 && (
         <>
           <ShoppingActions entries={view.shopping} />
+          <div className="bag" aria-live="off">
+            <div
+              className="progress"
+              role="progressbar"
+              aria-label="Items in the bag"
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={inBag}
+              style={{ '--pct': `${Math.round((inBag / total) * 100)}%` } as CSSProperties}
+            >
+              <span className="progress-fill" />
+            </div>
+            <p className="meta">{`${inBag} of ${total} items in the bag`}</p>
+            {inBag === total && <p className="victory">All provisions gathered! The party feasts tonight.</p>}
+          </div>
           <ul aria-label="Shopping list" className="shopping-list">
             {view.shopping.map((e) => (
               <li key={e.id}>

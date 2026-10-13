@@ -1,27 +1,44 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from './api';
 import { ConfirmDialog } from './ConfirmDialog';
 import { planApi } from './plan/planApi';
+import { formatQuantity } from '../shared/unit-conversion';
 import type { Meal } from '../shared/types';
 
+/** the calorie meter is full at this many kcal per serving */
+const METER_FULL_KCAL = 1000;
+
 function Calories({ meal }: { meal: Meal }) {
-  if (meal.caloriesPerServing === null) return <span>Calories: missing</span>;
+  const kcal = meal.caloriesPerServing;
+  const pct = kcal === null ? 0 : Math.round(Math.min(kcal / METER_FULL_KCAL, 1) * 100);
   return (
-    <span>
-      Calories: {meal.caloriesPerServing} kcal per serving
-      {meal.caloriesEstimated && <span className="badge"> estimated</span>}
-    </span>
+    <div className="stat">
+      {kcal === null ? (
+        <span>Calories: missing</span>
+      ) : (
+        <span>
+          Calories: {kcal} kcal per serving
+          {meal.caloriesEstimated && <span className="badge"> estimated</span>}
+        </span>
+      )}
+      <span className="meter" aria-hidden="true" style={{ '--pct': `${pct}%` } as CSSProperties} />
+    </div>
   );
 }
 
 function Cost({ meal }: { meal: Meal }) {
-  if (meal.totalCostEur === null) return <span>Cost: missing</span>;
   return (
-    <span>
-      Cost: {meal.totalCostEur.toFixed(2)} EUR
-      {meal.costEstimated && <span className="badge"> estimated</span>}
-    </span>
+    <div className="stat">
+      {meal.totalCostEur === null ? (
+        <span>Cost: missing</span>
+      ) : (
+        <span>
+          Cost: {meal.totalCostEur.toFixed(2)} EUR
+          {meal.costEstimated && <span className="badge"> estimated</span>}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -99,12 +116,25 @@ export function MealLibraryPage() {
           <li key={meal.id} data-testid={`meal-row-${meal.name}`} className="meal-row">
             <div className="meal-main">
               <h2>{meal.name}</h2>
-              <p className="meta">
-                <Calories meal={meal} /> · <Cost meal={meal} />
-              </p>
-              <p className="meta">
-                Prep {meal.prepMinutes} min · Cook {meal.cookMinutes} min · Total {meal.totalMinutes} min · {meal.baseServings} servings
-              </p>
+              <div className="stats">
+                <Calories meal={meal} />
+                <Cost meal={meal} />
+                <div className="stat">
+                  <span>Prep {meal.prepMinutes} min · Cook {meal.cookMinutes} min · Total {meal.totalMinutes} min</span>
+                </div>
+                <div className="stat">
+                  <span>{meal.baseServings} servings</span>
+                </div>
+              </div>
+              {meal.ingredients.length > 0 && (
+                <ul className="loot" aria-label="Ingredients">
+                  {meal.ingredients.map((i) => (
+                    <li key={i.id} className="chip">
+                      {i.name} <small>{`${formatQuantity(i.quantity)} ${i.unit}`}</small>
+                    </li>
+                  ))}
+                </ul>
+              )}
               {meal.sourceUrl && (
                 <p className="meta">
                   <a href={meal.sourceUrl} target="_blank" rel="noreferrer">Source</a>

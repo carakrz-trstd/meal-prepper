@@ -47,6 +47,38 @@ describe('MealLibraryPage (T-14)', () => {
     expect(row).toHaveTextContent('Total 40 min');
   });
 
+  it('presents a meal as a stat block: calories meter, cost, time and servings, ingredients as loot', async () => {
+    mocked.listMeals.mockResolvedValue([
+      meal({
+        caloriesPerServing: 620,
+        ingredients: [
+          { id: 1, position: 0, name: 'Beans', nameKey: 'beans', quantity: 400, unit: 'g' },
+          { id: 2, position: 1, name: 'Salt', nameKey: 'salt', quantity: 1, unit: 'pinch' },
+        ],
+      }),
+    ]);
+    renderPage();
+    const row = await screen.findByTestId('meal-row-Soup');
+    expect(row.querySelectorAll('.stat')).toHaveLength(4); // calories, cost, time, servings
+    expect(row.querySelector('.meter')).toHaveStyle('--pct: 62%'); // 620 of 1000 kcal
+    expect(row.querySelector('.meter')).toHaveAttribute('aria-hidden', 'true');
+    const loot = within(row).getByLabelText('Ingredients');
+    expect(loot).toHaveTextContent('Beans');
+    expect(loot).toHaveTextContent('400 g');
+    expect(loot).toHaveTextContent('Salt');
+    expect(loot).toHaveTextContent('1 pinch');
+  });
+
+  it('the calorie meter is empty when the calories are missing and capped at 100%', async () => {
+    mocked.listMeals.mockResolvedValue([
+      meal({ id: 1, name: 'Unknown', caloriesPerServing: null }),
+      meal({ id: 2, name: 'Feast', caloriesPerServing: 2500 }),
+    ]);
+    renderPage();
+    expect((await screen.findByTestId('meal-row-Unknown')).querySelector('.meter')).toHaveStyle('--pct: 0%');
+    expect(screen.getByTestId('meal-row-Feast').querySelector('.meter')).toHaveStyle('--pct: 100%');
+  });
+
   it('renders null calories and cost as "missing", never 0 (AC-2)', async () => {
     mocked.listMeals.mockResolvedValue([meal({ caloriesPerServing: null, totalCostEur: null })]);
     renderPage();

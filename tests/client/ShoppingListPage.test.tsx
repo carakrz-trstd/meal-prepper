@@ -52,6 +52,39 @@ describe('ShoppingListPage (T-12)', () => {
     expect(within(items[0]).getByRole('checkbox', { name: /Flour/ })).not.toBeChecked();
   });
 
+  it('shows how many items are in the bag as a progress bar and as text', async () => {
+    plan.getWeek.mockResolvedValue(withList(entry({ name: 'Flour', ticked: true }), entry({ name: 'Milk' }), entry({ name: 'Salt' })));
+    renderPage();
+    const bar = await screen.findByRole('progressbar', { name: 'Items in the bag' });
+    expect(bar).toHaveAttribute('aria-valuemin', '0');
+    expect(bar).toHaveAttribute('aria-valuemax', '3');
+    expect(bar).toHaveAttribute('aria-valuenow', '1');
+    expect(screen.getByText('1 of 3 items in the bag')).toBeInTheDocument();
+    expect(screen.queryByText(/all provisions gathered/i)).not.toBeInTheDocument();
+  });
+
+  it('the progress follows a tick at once and celebrates when everything is in the bag', async () => {
+    plan.getWeek.mockResolvedValue(withList(entry({ name: 'Flour', ticked: true }), entry({ name: 'Milk' })));
+    let answer!: (v: ReturnType<typeof withList>) => void;
+    plan.setTick.mockReturnValue(new Promise((resolve) => { answer = resolve; }));
+    const user = userEvent.setup({ advanceTimers: () => {} });
+    renderPage();
+    await screen.findByText('1 of 2 items in the bag');
+    await user.click(screen.getByRole('checkbox', { name: /Milk/ }));
+    expect(screen.getByText('2 of 2 items in the bag')).toBeInTheDocument(); // before the server answered
+    expect(screen.getByRole('progressbar', { name: 'Items in the bag' })).toHaveAttribute('aria-valuenow', '2');
+    expect(screen.getByText(/all provisions gathered/i)).toBeInTheDocument();
+    answer(withList(entry({ name: 'Flour', ticked: true }), entry({ name: 'Milk', ticked: true })));
+    await waitFor(() => expect(screen.getByText('2 of 2 items in the bag')).toBeInTheDocument());
+  });
+
+  it('shows no progress bar for an empty week', async () => {
+    plan.getWeek.mockResolvedValue(week());
+    renderPage();
+    await screen.findByText(/No meals are planned/i);
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
   it('shows decimals without a trailing .0 (AC-21)', async () => {
     plan.getWeek.mockResolvedValue(withList(entry({ name: 'Milk', quantity: 1.5, unit: 'l', family: 'volume', id: 'volume:milk' })));
     renderPage();

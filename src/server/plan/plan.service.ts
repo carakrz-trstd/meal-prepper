@@ -20,6 +20,7 @@ export interface PlanInput {
 /** Epic 3 hook (AD-10): where the participants of a planned meal are stored and validated. */
 export interface ParticipantLinks {
   allExist(participantIds: number[]): boolean;
+  idsOf(plannedMealId: number): number[];
   set(plannedMealId: number, participantIds: number[]): void;
 }
 
@@ -91,6 +92,37 @@ export class PlanService {
     this.db.transaction(() => {
       this.repo.updateServings(existing.id, servings);
       this.repo.setSetting('last_servings', String(servings));
+    })();
+    return buildWeekView(this.repo, weekStart);
+  }
+
+  /**
+   * Drag and drop: moves the meal of one day to another day of the week. If the target day has a meal, the two
+   * meals swap days. Servings and participants travel with their meal. Moving back is the same call reversed.
+   */
+  moveDay(weekStart: string, fromDay: number, toDay: number): WeekView {
+    this.checkWeek(weekStart);
+    this.checkDay(fromDay);
+    this.checkDay(toDay);
+    const from = this.repo.getDay(weekStart, fromDay);
+    if (!from) throw new PlanError('DAY_EMPTY');
+    if (fromDay === toDay) return buildWeekView(this.repo, weekStart);
+
+    this.db.transaction(() => {
+      const to = this.repo.getDay(weekStart, toDay);
+      if (!to) {
+        this.repo.moveTo(from.id, toDay);
+        return;
+      }
+      // swap: both rows are re-created, because the unique (week, meal) rule forbids a half-swapped state
+      const fromLinks = this.links?.idsOf(from.id) ?? [];
+      const toLinks = this.links?.idsOf(to.id) ?? [];
+      this.repo.delete(from.id);
+      this.repo.delete(to.id);
+      this.repo.insert(weekStart, toDay, from.mealId, from.servings);
+      this.repo.insert(weekStart, fromDay, to.mealId, to.servings);
+      this.links?.set(this.repo.getDay(weekStart, toDay)!.id, fromLinks);
+      this.links?.set(this.repo.getDay(weekStart, fromDay)!.id, toLinks);
     })();
     return buildWeekView(this.repo, weekStart);
   }

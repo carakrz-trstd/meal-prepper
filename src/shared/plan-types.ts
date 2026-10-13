@@ -14,6 +14,8 @@ export interface PlannedEntry {
   totalCostEur: number | null;
   /** preparation + cooking minutes */
   totalMinutes: number;
+  /** the participants ticked for this meal (Epic 3); lets the client restore a meal exactly ("Undo") */
+  participantIds: number[];
 }
 
 export interface PlannedDay {
