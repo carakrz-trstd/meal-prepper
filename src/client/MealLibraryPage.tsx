@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from './api';
 import { ConfirmDialog } from './ConfirmDialog';
+import { planApi } from './plan/planApi';
 import type { Meal } from '../shared/types';
 
 function Calories({ meal }: { meal: Meal }) {
@@ -130,7 +131,7 @@ export function MealLibraryPage() {
       {toDelete && (
         <ConfirmDialog
           title="Delete meal?"
-          message={`"${toDelete.name}" and its ingredients will be removed. This cannot be undone.`}
+          message={`"${toDelete.meal.name}" and its ingredients will be removed. This cannot be undone.${toDelete.note}`}
           confirmLabel="Delete meal"
           onConfirm={() => void confirmDelete()}
           onCancel={() => setToDelete(null)}

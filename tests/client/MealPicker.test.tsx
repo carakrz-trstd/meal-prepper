@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MealPicker } from '../../src/client/plan/MealPicker';
+import { MealPicker, type ConfirmResult } from '../../src/client/plan/MealPicker';
 import { week, meal } from './fixtures';
 
 vi.mock('../../src/client/api', () => ({ api: { listMeals: vi.fn() } }));
@@ -15,8 +15,9 @@ const library = [
   meal({ id: 30, name: 'Onion Soup' }),
 ];
 
-interface Opts { lastServings?: number; replacing?: string | null; onConfirm?: ReturnType<typeof vi.fn>; day?: number }
-function renderPicker({ lastServings = 4, replacing = null, onConfirm = vi.fn().mockResolvedValue({ ok: true }), day = 4 }: Opts = {}) {
+type ConfirmFn = (mealId: number, servings: number, replace: boolean) => Promise<ConfirmResult>;
+interface Opts { lastServings?: number; replacing?: string | null; onConfirm?: Mock<ConfirmFn>; day?: number }
+function renderPicker({ lastServings = 4, replacing = null, onConfirm = vi.fn<ConfirmFn>().mockResolvedValue({ ok: true }), day = 4 }: Opts = {}) {
   // Pasta is planned on Wednesday (day 3) of the viewed week
   const days = week({}, { 3: { mealName: 'Pasta Bolognese', mealId: 10 } }).days;
   const onClose = vi.fn();
@@ -124,7 +125,7 @@ describe('MealPicker (T-11)', () => {
 
   it('shows a server refusal in the dialog and keeps it open', async () => {
     const user = userEvent.setup();
-    const onConfirm = vi.fn().mockResolvedValue({ ok: false, message: 'This meal is already planned on another day of this week.' });
+    const onConfirm = vi.fn<ConfirmFn>().mockResolvedValue({ ok: false, message: 'This meal is already planned on another day of this week.' });
     const { onClose } = renderPicker({ onConfirm });
     await user.click(await screen.findByRole('button', { name: 'Pancakes' }));
     await user.click(screen.getByRole('button', { name: 'Add to plan' }));

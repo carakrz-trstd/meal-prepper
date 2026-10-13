@@ -1,7 +1,8 @@
-import { defineConfig, devices } from '@playwright/test';
+﻿import { defineConfig, devices } from '@playwright/test';
 
 const STUB = 'http://127.0.0.1:4180';
-const stubEnv = { NUTRITION_BASE_URL: STUB, PRICE_BASE_URL: STUB };
+// APP_FIXED_DATE pins the app's idea of today (a Wednesday) so the current week and past days are predictable.
+const stubEnv = { NUTRITION_BASE_URL: STUB, PRICE_BASE_URL: STUB, APP_FIXED_DATE: '2026-10-14' };
 
 export default defineConfig({
   testDir: 'e2e',
@@ -33,3 +34,4 @@ export default defineConfig({
     },
   ],
 });
+

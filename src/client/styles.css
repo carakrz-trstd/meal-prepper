@@ -22,3 +22,33 @@ main { max-width: 52rem; margin: 0 auto; padding: 1rem; }
 .dialog { background: Canvas; color: CanvasText; padding: 1.25rem; border-radius: 10px; max-width: 28rem; }
 button.danger { background: #b00020; color: #fff; }
 button, input, select { font: inherit; padding: 0.35rem 0.6rem; }
+
+/* Weekly plan and shopping list (Epic 2) */
+.week-nav { display: flex; gap: 0.75rem; align-items: center; margin: 0.5rem 0 1rem; }
+.week-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.day-card { border: 1px solid #8886; border-radius: 8px; padding: 0.75rem; }
+.day-card h2 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+.day-card .date { color: #666a; font-weight: normal; font-size: 0.85em; }
+.day-card .empty { color: #666a; }
+.meal-name { font-weight: 600; margin: 0.2rem 0; }
+.picker { max-width: 34rem; width: 92vw; max-height: 85vh; overflow: auto; }
+.picker-filters { display: grid; gap: 0.5rem; margin-bottom: 0.5rem; }
+.picker-list { list-style: none; padding: 0; display: grid; gap: 0.35rem; }
+.picker-list li { display: flex; gap: 0.5rem; align-items: center; }
+.shopping-list { list-style: none; padding: 0; display: grid; gap: 0.25rem; }
+.shopping-list li { min-height: 44px; font-size: 1.1rem; padding: 0.35rem 0; border-bottom: 1px solid #8883; }
+.shopping-row { display: flex; gap: 0.75rem; align-items: center; min-height: 44px; cursor: pointer; }
+.shopping-row input { width: 1.4rem; height: 1.4rem; }
+.shopping-row .name { flex: 1; }
+.sources { display: block; color: #666a; margin-left: 2.15rem; }
+.shopping-actions { display: flex; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
+.empty-state { padding: 1rem 0; }
+
+@media print {
+  .app-header, .no-print, .dialog-backdrop { display: none !important; }
+  body { background: #fff; color: #000; }
+  main { max-width: none; padding: 0; }
+  .shopping-list li { break-inside: avoid; }
+  .shopping-row input { appearance: none; border: 2px solid #000; border-radius: 2px; }
+  .shopping-row input:checked { background: #000; }
+}

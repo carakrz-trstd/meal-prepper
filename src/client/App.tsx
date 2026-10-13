@@ -4,6 +4,8 @@ import { api } from './api';
 import { MealForm, type SaveHandler } from './MealForm';
 import { MealLibraryPage } from './MealLibraryPage';
 import { ImportPage } from './ImportPage';
+import { WeekPlanPage } from './plan/WeekPlanPage';
+import { ShoppingListPage } from './plan/ShoppingListPage';
 import type { Meal } from '../shared/types';
 
 function AddMealPage() {
@@ -57,6 +59,8 @@ export function App() {
           <Link to="/">Meals</Link>
           <Link to="/meals/new">Add meal</Link>
           <Link to="/import">Import recipe</Link>
+          <Link to="/plan">Plan</Link>
+          <Link to="/shopping">Shopping list</Link>
         </nav>
       </header>
       <main>
@@ -65,6 +69,8 @@ export function App() {
           <Route path="/meals/new" element={<AddMealPage />} />
           <Route path="/meals/:id/edit" element={<EditMealPage />} />
           <Route path="/import" element={<ImportPage />} />
+          <Route path="/plan" element={<WeekPlanPage />} />
+          <Route path="/shopping" element={<ShoppingListPage />} />
           <Route path="*" element={<p>Page not found. <Link to="/">Back to the meals</Link></p>} />
         </Routes>
       </main>

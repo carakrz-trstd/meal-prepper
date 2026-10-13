@@ -10,16 +10,23 @@ const entries = [
 ];
 
 let writeText: ReturnType<typeof vi.fn>;
-beforeEach(() => {
+
+/** user-event installs its own clipboard stub on setup(), so our mock is defined after it. */
+function setup() {
+  const user = userEvent.setup();
   writeText = vi.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+  return user;
+}
+
+beforeEach(() => {
   window.print = vi.fn();
 });
 afterEach(() => vi.restoreAllMocks());
 
 describe('ShoppingActions (T-13, AC-22)', () => {
   it('"Copy as text" writes the formatted text to the clipboard and shows "Copied"', async () => {
-    const user = userEvent.setup();
+    const user = setup();
     render(<ShoppingActions entries={entries} />);
     await user.click(screen.getByRole('button', { name: 'Copy as text' }));
     expect(writeText).toHaveBeenCalledWith('1.5 kg Flour\n3 piece Onion');
@@ -27,15 +34,15 @@ describe('ShoppingActions (T-13, AC-22)', () => {
   });
 
   it('a clipboard rejection shows "Copy failed" without crashing', async () => {
+    const user = setup();
     writeText.mockRejectedValue(new Error('denied'));
-    const user = userEvent.setup();
     render(<ShoppingActions entries={entries} />);
     await user.click(screen.getByRole('button', { name: 'Copy as text' }));
     expect(await screen.findByRole('status')).toHaveTextContent('Copy failed');
   });
 
   it('"Print" calls window.print', async () => {
-    const user = userEvent.setup();
+    const user = setup();
     render(<ShoppingActions entries={entries} />);
     await user.click(screen.getByRole('button', { name: 'Print' }));
     expect(window.print).toHaveBeenCalledTimes(1);
