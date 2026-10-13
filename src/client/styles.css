@@ -1,0 +1,24 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.4; }
+body { margin: 0; }
+.app-header { display: flex; gap: 1.5rem; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid #8884; }
+.app-header nav { display: flex; gap: 1rem; }
+main { max-width: 52rem; margin: 0 auto; padding: 1rem; }
+.meal-list { list-style: none; padding: 0; display: grid; gap: 0.75rem; }
+.meal-row { display: flex; justify-content: space-between; gap: 1rem; border: 1px solid #8886; border-radius: 8px; padding: 0.75rem 1rem; }
+.meal-row h2 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+.meta { margin: 0.1rem 0; color: #666a; }
+.meal-actions { display: flex; gap: 0.5rem; align-items: start; }
+.meal-form .field { display: grid; gap: 0.25rem; margin-bottom: 0.75rem; }
+.ingredient-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; align-items: center; }
+.ingredients { margin-bottom: 0.75rem; }
+.error { color: #b00020; display: block; }
+.warning { background: #fff3cd; color: #5c4400; padding: 0.5rem 0.75rem; border-radius: 6px; }
+.missing { color: #b26a00; font-style: italic; }
+.badge { background: #e8f0fe; color: #174ea6; border-radius: 4px; padding: 0 0.35rem; font-size: 0.85em; }
+.proposal { color: #174ea6; }
+.actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.import-form { display: grid; gap: 0.5rem; margin-bottom: 1rem; }
+.dialog-backdrop { position: fixed; inset: 0; background: #0006; display: grid; place-items: center; }
+.dialog { background: Canvas; color: CanvasText; padding: 1.25rem; border-radius: 10px; max-width: 28rem; }
+button.danger { background: #b00020; color: #fff; }
+button, input, select { font: inherit; padding: 0.35rem 0.6rem; }
