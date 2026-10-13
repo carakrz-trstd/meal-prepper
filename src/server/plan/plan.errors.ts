@@ -8,6 +8,7 @@ const STATUS: Record<PlanErrorCode, number> = {
   MEAL_NOT_FOUND: 404,
   DAY_EMPTY: 404,
   ENTRY_NOT_FOUND: 404,
+  INVALID_PARTICIPANT: 400,
   DAY_OCCUPIED: 409,
   MEAL_ALREADY_PLANNED: 409,
 };
@@ -20,6 +21,7 @@ const MESSAGE: Record<PlanErrorCode, string> = {
   MEAL_NOT_FOUND: 'This meal does not exist.',
   DAY_EMPTY: 'Nothing is planned on this day.',
   ENTRY_NOT_FOUND: 'This shopping list entry does not exist.',
+  INVALID_PARTICIPANT: 'participantIds must list existing participants.',
   DAY_OCCUPIED: 'This day already has a meal.',
   MEAL_ALREADY_PLANNED: 'This meal is already planned on another day of this week.',
 };

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+﻿import { describe, it, expect } from 'vitest';
 import { validateMealInput } from './validation';
 import { UNITS } from './units';
 import type { MealInput } from './types';
@@ -47,8 +47,8 @@ describe('validateMealInput', () => {
     const r = fields(valid({ ingredients: [{ name: 'Flour', quantity: 1, unit: 'cup' as never }] }));
     expect(r).toContain('ingredients[0].unit');
   });
-  it('accepts each of the seven units', () => {
-    expect(UNITS).toEqual(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece']);
+  it('accepts each of the eight units', () => {
+    expect(UNITS).toEqual(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece', 'pinch']);
     for (const unit of UNITS) {
       expect(validateMealInput(valid({ ingredients: [{ name: 'X', quantity: 1, unit }] })).ok).toBe(true);
     }

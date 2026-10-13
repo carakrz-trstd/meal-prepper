@@ -9,6 +9,7 @@ const UNIT_ALIASES: Record<string, Unit> = {
   tsp: 'tsp', tl: 'tsp', teaspoon: 'tsp', teaspoons: 'tsp', teelöffel: 'tsp',
   tbsp: 'tbsp', el: 'tbsp', tablespoon: 'tbsp', tablespoons: 'tbsp', esslöffel: 'tbsp',
   piece: 'piece', pieces: 'piece', stück: 'piece', stk: 'piece', pc: 'piece', pcs: 'piece',
+  pinch: 'pinch', pinches: 'pinch', prise: 'pinch', prisen: 'pinch',
 };
 
 const UNICODE_FRACTIONS: Record<string, number> = {
@@ -68,6 +69,6 @@ export function parseIngredientLine(raw: string): DraftIngredient {
 
 /** Words that look like units we do not support (cup, Bund, Prise, ...). */
 function isUnknownUnitWord(token: string): boolean {
-  return ['cup', 'cups', 'bund', 'prise', 'pinch', 'handful', 'dose', 'dosen', 'can', 'cans', 'pkg', 'packung', 'oz', 'lb', 'lbs', 'zehe', 'zehen', 'clove', 'cloves', 'bunch', 'scheibe', 'scheiben', 'slice', 'slices', 'pack', 'glas', 'becher']
+  return ['cup', 'cups', 'bund', 'handful', 'dose', 'dosen', 'can', 'cans', 'pkg', 'packung', 'oz', 'lb', 'lbs', 'zehe', 'zehen', 'clove', 'cloves', 'bunch', 'scheibe', 'scheiben', 'slice', 'slices', 'pack', 'glas', 'becher']
     .includes(token);
 }

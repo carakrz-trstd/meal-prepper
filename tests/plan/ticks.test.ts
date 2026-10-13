@@ -92,6 +92,15 @@ describe('ticks (T-6, AC-16, AC-19)', () => {
     expect(entry(view, 'piece:milk')?.ticked).toBe(false);
   });
 
+  it('a pinch entry can be ticked and keeps its tick (unit "pinch")', () => {
+    const db = freshDb();
+    const s = new PlanService(db, fixedClock());
+    s.planDay(THIS_WEEK, 1, { mealId: seedMeal(db, { name: 'A', ingredients: [{ name: 'Salt', quantity: 2, unit: 'pinch' }] }), servings: 4 });
+    const view = s.setTick(THIS_WEEK, 'pinch:salt', true);
+    expect(entry(view, 'pinch:salt')).toMatchObject({ ticked: true, quantity: 2, unit: 'pinch' });
+    expect(entry(s.getWeek(THIS_WEEK), 'pinch:salt')?.ticked).toBe(true);
+  });
+
   it('ticks of other weeks are untouched by reading a week', () => {
     const db = freshDb();
     const s = new PlanService(db, fixedClock());

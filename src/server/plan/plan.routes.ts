@@ -21,17 +21,23 @@ export function registerPlanRoutes(app: FastifyInstance, plan: PlanService): voi
     run(reply, () => plan.getWeek(req.params.weekStart)),
   );
 
-  app.put<{ Params: { weekStart: string; day: string }; Body: { mealId?: number; servings?: unknown; replace?: boolean } }>(
-    '/api/plan/:weekStart/days/:day',
-    async (req, reply) =>
-      run(reply, () =>
-        plan.planDay(req.params.weekStart, day(req.params), {
-          mealId: Number(req.body?.mealId),
-          servings: req.body?.servings as number,
-          replace: req.body?.replace === true,
-        }),
-      ),
-  );
+  app.put<{
+    Params: { weekStart: string; day: string };
+    Body: { mealId?: number; servings?: unknown; replace?: boolean; participantIds?: unknown };
+  }>('/api/plan/:weekStart/days/:day', async (req, reply) => {
+    const ids = req.body?.participantIds;
+    if (ids !== undefined && !(Array.isArray(ids) && ids.every((n) => Number.isInteger(n)))) {
+      return reply.code(400).send({ code: 'INVALID_PARTICIPANT', message: 'participantIds must be a list of participant ids.' });
+    }
+    return run(reply, () =>
+      plan.planDay(req.params.weekStart, day(req.params), {
+        mealId: Number(req.body?.mealId),
+        servings: req.body?.servings as number,
+        replace: req.body?.replace === true,
+        participantIds: ids as number[] | undefined,
+      }),
+    );
+  });
 
   app.patch<{ Params: { weekStart: string; day: string }; Body: { servings?: unknown } }>(
     '/api/plan/:weekStart/days/:day',

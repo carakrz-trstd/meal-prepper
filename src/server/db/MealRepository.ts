@@ -158,6 +158,12 @@ export class MealRepository {
     return res.changes > 0 ? this.get(id) : null;
   }
 
+  /** Source URLs of imported meals (Epic 3 skips online results that are already in the library, AC-23). */
+  sourceUrls(): Set<string> {
+    const rows = this.db.prepare('SELECT source_url AS url FROM meals WHERE source_url IS NOT NULL').all() as { url: string }[];
+    return new Set(rows.map((r) => r.url));
+  }
+
   existsByName(name: string, excludeId?: number): boolean {
     const row = this.db
       .prepare('SELECT 1 AS x FROM meals WHERE lower(name) = lower(?) AND (? IS NULL OR id != ?) LIMIT 1')

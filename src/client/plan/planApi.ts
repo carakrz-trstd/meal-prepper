@@ -39,7 +39,7 @@ const base = (weekStart: string) => `/api/plan/${weekStart}`;
 /** Every mutation resolves with the full updated week view (AD-10). */
 export const planApi = {
   getWeek: (weekStart: string) => call<WeekView>(base(weekStart)),
-  planDay: (weekStart: string, day: number, input: { mealId: number; servings: number; replace?: boolean }) =>
+  planDay: (weekStart: string, day: number, input: { mealId: number; servings: number; replace?: boolean; participantIds?: number[] }) =>
     call<WeekView>(`${base(weekStart)}/days/${day}`, json('PUT', input)),
   changeServings: (weekStart: string, day: number, servings: number) =>
     call<WeekView>(`${base(weekStart)}/days/${day}`, json('PATCH', { servings })),

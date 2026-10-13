@@ -26,6 +26,12 @@ describe('parseIngredientLine (T-6)', () => {
     expect(r.unit).toBeNull();
     expect(r.name).toBe('1 Bund Petersilie');
   });
+  it('pinch: "1 Prise Salz", "2 pinches salt", "1 pinch of salt"', () => {
+    expect(parseIngredientLine('1 Prise Salz')).toEqual({ name: 'Salz', quantity: 1, unit: 'pinch' });
+    expect(parseIngredientLine('2 pinches salt')).toEqual({ name: 'salt', quantity: 2, unit: 'pinch' });
+    expect(parseIngredientLine('1 pinch of salt')).toEqual({ name: 'of salt', quantity: 1, unit: 'pinch' });
+    expect(parseIngredientLine('½ Prise Zimt')).toEqual({ name: 'Zimt', quantity: 0.5, unit: 'pinch' });
+  });
   it('English units: "2 tablespoons olive oil", "250 ml milk", "1 cup flour" (unknown)', () => {
     expect(parseIngredientLine('2 tablespoons olive oil')).toEqual({ name: 'olive oil', quantity: 2, unit: 'tbsp' });
     expect(parseIngredientLine('250 ml milk')).toEqual({ name: 'milk', quantity: 250, unit: 'ml' });

@@ -1,13 +1,13 @@
 import type { Unit } from './units';
 
-/** Four families that may be added together; no conversion between families (AD-11, AC-14). */
-export type UnitFamily = 'mass' | 'volume' | 'spoon' | 'piece';
+/** Five families that may be added together; no conversion between families (AD-11, AC-14). "pinch" is its own family. */
+export type UnitFamily = 'mass' | 'volume' | 'spoon' | 'piece' | 'pinch';
 
-export const FAMILY_ORDER: UnitFamily[] = ['mass', 'volume', 'spoon', 'piece'];
-export const BASE_UNIT: Record<UnitFamily, Unit> = { mass: 'g', volume: 'ml', spoon: 'tsp', piece: 'piece' };
+export const FAMILY_ORDER: UnitFamily[] = ['mass', 'volume', 'spoon', 'piece', 'pinch'];
+export const BASE_UNIT: Record<UnitFamily, Unit> = { mass: 'g', volume: 'ml', spoon: 'tsp', piece: 'piece', pinch: 'pinch' };
 
-const FAMILY: Record<Unit, UnitFamily> = { g: 'mass', kg: 'mass', ml: 'volume', l: 'volume', tsp: 'spoon', tbsp: 'spoon', piece: 'piece' };
-const FACTOR: Record<Unit, number> = { g: 1, kg: 1000, ml: 1, l: 1000, tsp: 1, tbsp: 3, piece: 1 };
+const FAMILY: Record<Unit, UnitFamily> = { g: 'mass', kg: 'mass', ml: 'volume', l: 'volume', tsp: 'spoon', tbsp: 'spoon', piece: 'piece', pinch: 'pinch' };
+const FACTOR: Record<Unit, number> = { g: 1, kg: 1000, ml: 1, l: 1000, tsp: 1, tbsp: 3, piece: 1, pinch: 1 };
 const LARGE: Partial<Record<UnitFamily, { unit: Unit; threshold: number }>> = {
   mass: { unit: 'kg', threshold: 1000 },
   volume: { unit: 'l', threshold: 1000 },

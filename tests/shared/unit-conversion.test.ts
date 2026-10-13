@@ -47,6 +47,15 @@ describe('unit conversion (T-3, AC-14, AC-21)', () => {
     expect(formatBase(0.2, 'piece')).toEqual({ quantity: 1, unit: 'piece' });
   });
 
+  it('"pinch" is its own family: no conversion to spoons or pieces, one decimal at most', () => {
+    expect(familyOf('pinch')).toBe('pinch');
+    expect(toBase(2, 'pinch')).toBe(2);
+    expect(formatBase(1, 'pinch')).toEqual({ quantity: 1, unit: 'pinch' });
+    expect(formatBase(2.5, 'pinch')).toEqual({ quantity: 2.5, unit: 'pinch' });
+    expect(formatBase(0.25, 'pinch')).toEqual({ quantity: 0.3, unit: 'pinch' });
+    expect(formatBase(40, 'pinch')).toEqual({ quantity: 40, unit: 'pinch' }); // never switches to a larger unit
+  });
+
   it('formatQuantity drops a trailing .0', () => {
     expect(formatQuantity(2)).toBe('2');
     expect(formatQuantity(1.5)).toBe('1.5');

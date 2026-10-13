@@ -6,6 +6,8 @@ import { MealLibraryPage } from './MealLibraryPage';
 import { ImportPage } from './ImportPage';
 import { WeekPlanPage } from './plan/WeekPlanPage';
 import { ShoppingListPage } from './plan/ShoppingListPage';
+import { ParticipantsPage } from './constraints/ParticipantsPage';
+import { BlacklistPage } from './constraints/BlacklistPage';
 import type { Meal } from '../shared/types';
 
 function AddMealPage() {
@@ -61,6 +63,8 @@ export function App() {
           <Link to="/import">Import recipe</Link>
           <Link to="/plan">Plan</Link>
           <Link to="/shopping">Shopping list</Link>
+          <Link to="/participants">Participants</Link>
+          <Link to="/blacklist">Blacklist</Link>
         </nav>
       </header>
       <main>
@@ -71,6 +75,8 @@ export function App() {
           <Route path="/import" element={<ImportPage />} />
           <Route path="/plan" element={<WeekPlanPage />} />
           <Route path="/shopping" element={<ShoppingListPage />} />
+          <Route path="/participants" element={<ParticipantsPage />} />
+          <Route path="/blacklist" element={<BlacklistPage />} />
           <Route path="*" element={<p>Page not found. <Link to="/">Back to the meals</Link></p>} />
         </Routes>
       </main>

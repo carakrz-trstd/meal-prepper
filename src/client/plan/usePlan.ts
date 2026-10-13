@@ -63,7 +63,7 @@ export function usePlan(weekStart: string) {
     error,
     loading,
     clearError: () => setError(null),
-    planDay: (day: number, input: { mealId: number; servings: number; replace?: boolean }) =>
+    planDay: (day: number, input: { mealId: number; servings: number; replace?: boolean; participantIds?: number[] }) =>
       mutate(() => planApi.planDay(weekStart, day, input)),
     changeServings: (day: number, servings: number) => mutate(() => planApi.changeServings(weekStart, day, servings)),
     removeDay: (day: number) => mutate(() => planApi.removeDay(weekStart, day)),

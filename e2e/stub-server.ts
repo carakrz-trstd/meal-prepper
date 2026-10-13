@@ -6,10 +6,47 @@ import http from 'node:http';
  */
 export type Mode = 'ok' | 'error' | 'slow';
 
-const state = { nutrition: 'ok' as Mode, price: 'ok' as Mode, slowMs: 5000 };
-
 const jsonLd = (obj: unknown) =>
   `<!doctype html><html><head><script type="application/ld+json">${JSON.stringify(obj)}</script></head><body></body></html>`;
+
+export type GoogleMode = 'results' | 'captcha' | '429' | 'empty';
+export type AllrecipesMode = 'results' | 'error';
+
+const initial = () => ({
+  nutrition: 'ok' as Mode,
+  price: 'ok' as Mode,
+  slowMs: 5000,
+  google: 'results' as GoogleMode,
+  allrecipes: 'results' as AllrecipesMode,
+  /** > 0: the Google results also list /r/online-slow, which answers only after this many ms */
+  slowRecipe: 0,
+  /** delay before each online recipe page answers, to make candidates arrive one by one */
+  stagger: 0,
+});
+const state = initial();
+const counts = { google: 0, allrecipes: 0, recipePages: 0, fetched: [] as string[] };
+const resetCounts = () => Object.assign(counts, { google: 0, allrecipes: 0, recipePages: 0, fetched: [] });
+
+// --- Epic 3: recipes found by the online search (served under /r/ and /recipe/) ---
+const onlineRecipe = (name: string, ingredients: string[], calories: number | null, costEur: number | null, prep = 'PT10M', cook = 'PT20M') =>
+  jsonLd({
+    '@context': 'https://schema.org', '@type': 'Recipe', name, recipeIngredient: ingredients,
+    prepTime: prep, cookTime: cook, recipeYield: '4 servings',
+    ...(calories === null ? {} : { nutrition: { '@type': 'NutritionInformation', calories: `${calories} kcal` } }),
+    ...(costEur === null ? {} : { estimatedCost: { '@type': 'MonetaryAmount', currency: 'EUR', value: String(costEur) } }),
+  });
+
+const ONLINE_RECIPES: Record<string, string> = {
+  '/r/online-lentil': onlineRecipe('Online Lentil Bowl', ['200 g Lentils', '100 g Carrot'], 300, 6),
+  '/r/online-pasta': onlineRecipe('Online Pasta Bake', ['300 g Pasta', '100 g Tomatoes'], 520, 8, 'PT10M', 'PT15M'),
+  '/r/online-extra': onlineRecipe('Online Veggie Stew', ['200 g Zucchini', '100 g Carrot'], 350, 5, 'PT5M', 'PT20M'),
+  '/r/online-nutty': onlineRecipe('Online Nutty Bar', ['100 g Mixed nuts'], 300, 5),
+  '/r/online-dup': onlineRecipe('Online Duplicate Chili', ['200 g Beans'], 400, 4),
+  '/r/online-slow': onlineRecipe('Online Slow Roast', ['500 g Potatoes'], 450, 7),
+  '/r/online-unparsable': '<!doctype html><html><body><h1>Cookie banner</h1><p>No recipe here.</p></body></html>',
+  '/recipe/ar-1/allrecipes-bowl/': onlineRecipe('Allrecipes Bowl', ['150 g Rice', '100 g Carrot'], 280, 5),
+  '/recipe/ar-2/allrecipes-stew/': onlineRecipe('Allrecipes Stew', ['200 g Lentils'], 310, 4),
+};
 
 const PAGES: Record<string, string> = {
   '/recipe-jsonld': jsonLd({
@@ -47,8 +84,65 @@ export function startStubServer(port = 4180): Promise<http.Server> {
       return;
     }
     if (url.pathname === '/__reset') {
-      Object.assign(state, { nutrition: 'ok', price: 'ok', slowMs: 5000 });
+      Object.assign(state, initial());
+      resetCounts();
       res.end('ok');
+      return;
+    }
+    if (url.pathname === '/__counts') {
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify(counts));
+      return;
+    }
+
+    // Google results page stand-in: /google/search?q=...
+    if (url.pathname === '/google/search') {
+      counts.google += 1;
+      if (state.google === '429') {
+        res.statusCode = 429;
+        res.end('Too Many Requests');
+        return;
+      }
+      res.setHeader('content-type', 'text/html; charset=utf-8');
+      if (state.google === 'captcha') {
+        res.end('<html><body><form action="/sorry/index"><div>Our systems have detected unusual traffic from your computer network.</div></form></body></html>');
+        return;
+      }
+      if (state.google === 'empty') {
+        res.end('<html><body><div id="search"><p>Your search did not match any documents.</p></div></body></html>');
+        return;
+      }
+      const recipes = ['lentil', 'pasta', 'dup', 'unparsable', 'nutty', 'extra', ...(state.slowRecipe > 0 ? ['slow'] : [])];
+      const links = recipes
+        .map((r) => `<div class="g"><a href="/url?q=${encodeURIComponent(`http://127.0.0.1:4180/r/online-${r}`)}&amp;sa=U"><h3>${r}</h3></a></div>`)
+        .join('\n');
+      res.end(`<html><body><div id="search">${links}</div><a href="https://www.google.com/preferences">Settings</a></body></html>`);
+      return;
+    }
+
+    // allrecipes.com stand-in: /allrecipes/search?q=...
+    if (url.pathname === '/allrecipes/search') {
+      counts.allrecipes += 1;
+      if (state.allrecipes === 'error') {
+        res.statusCode = 503;
+        res.end('unavailable');
+        return;
+      }
+      res.setHeader('content-type', 'text/html; charset=utf-8');
+      res.end(
+        '<html><body><a href="/recipe/ar-1/allrecipes-bowl/">Bowl</a><a href="/recipe/ar-2/allrecipes-stew/">Stew</a><a href="/recipes/80/main-dish/">Category</a></body></html>',
+      );
+      return;
+    }
+
+    // online recipe pages
+    if (ONLINE_RECIPES[url.pathname]) {
+      counts.recipePages += 1;
+      counts.fetched.push(url.pathname);
+      if (url.pathname === '/r/online-slow') await delay(state.slowRecipe || 10_000);
+      else if (state.stagger > 0) await delay(state.stagger * (1 + (Object.keys(ONLINE_RECIPES).indexOf(url.pathname) % 3)));
+      res.setHeader('content-type', 'text/html; charset=utf-8');
+      res.end(ONLINE_RECIPES[url.pathname]);
       return;
     }
 

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDate, weekdayName } from '../../shared/week';
 import { formatQuantity } from '../../shared/unit-conversion';
@@ -11,6 +12,17 @@ export function ShoppingListPage() {
   const { week } = useWeekParam();
   const plan = usePlan(week);
   const view = plan.view;
+  // Ticks flip at once and are then confirmed (or reverted) by the server's answer.
+  const [pending, setPending] = useState<Record<string, boolean>>({});
+
+  async function toggle(id: string, ticked: boolean) {
+    setPending((p) => ({ ...p, [id]: ticked }));
+    await plan.setTick(id, ticked);
+    setPending((p) => {
+      const { [id]: _done, ...rest } = p;
+      return rest;
+    });
+  }
 
   return (
     <section>
@@ -34,7 +46,7 @@ export function ShoppingListPage() {
             {view.shopping.map((e) => (
               <li key={e.id}>
                 <label className="shopping-row">
-                  <input type="checkbox" checked={e.ticked} onChange={(ev) => void plan.setTick(e.id, ev.target.checked)} />
+                  <input type="checkbox" checked={pending[e.id] ?? e.ticked} onChange={(ev) => void toggle(e.id, ev.target.checked)} />
                   <span className="name">{e.name}</span>
                   <span className="qty">{`${formatQuantity(e.quantity)} ${e.unit}`}</span>
                 </label>

@@ -259,7 +259,8 @@ test('J4 shopping list: merged, scaled, ticked, copied, printed (AC-6, 7, 10, 14
   await page.getByRole('button', { name: 'Copy as text' }).click();
   await expect(page.getByRole('status')).toContainText('Copied');
   const copied = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copied.split('\n')).toEqual(expect.arrayContaining(['800 g Spaghetti', '4 piece Onion']));
+  // the Windows clipboard returns CRLF line breaks, the app itself writes "\n"
+  expect(copied.split(/\r?\n/)).toEqual(expect.arrayContaining(['800 g Spaghetti', '4 piece Onion']));
 
   // AC-22: the print view hides navigation and buttons but keeps the list
   await page.emulateMedia({ media: 'print' });

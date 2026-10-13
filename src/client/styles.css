@@ -52,3 +52,17 @@ button, input, select { font: inherit; padding: 0.35rem 0.6rem; }
   .shopping-row input { appearance: none; border: 2px solid #000; border-radius: 2px; }
   .shopping-row input:checked { background: #000; }
 }
+
+/* Constraints, suggestions and dietary safety (Epic 3) */
+.suggest-panel { display: grid; gap: 0.75rem; }
+.suggest-form { display: grid; gap: 0.5rem; }
+.suggest-form label { display: grid; gap: 0.2rem; }
+.suggestion-card { border: 1px solid #8886; border-radius: 8px; padding: 0.75rem; }
+.suggestion-card h3 { margin: 0 0 0.3rem; }
+.participant-ticks { border: 1px solid #8884; border-radius: 6px; padding: 0.4rem 0.6rem; }
+.checkbox { display: inline-flex; gap: 0.3rem; align-items: center; margin-right: 0.75rem; }
+.restrictions { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin: 0.5rem 0; }
+.participant-list, .blacklist { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+.participant-row, .blacklist li { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; border: 1px solid #8884; border-radius: 6px; padding: 0.5rem 0.75rem; }
+.participant-form, .blacklist-form { display: grid; gap: 0.5rem; margin: 1rem 0; max-width: 40rem; }
+.warning ul { margin: 0.25rem 0; padding-left: 1.25rem; }

@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+﻿import { test, expect, type Page } from '@playwright/test';
 
 const STUB = 'http://127.0.0.1:4180';
 const CONTROL = 'http://127.0.0.1:4175';
@@ -51,7 +51,7 @@ test('J1 add a meal manually (AC-1, 2, 7, 11, 12, 14, 16, 20)', async ({ page, r
 
   // AC-14, AC-12
   await expect(page.getByLabel('Base servings')).toHaveValue('4');
-  await expect(page.getByLabel('Unit').first().getByRole('option')).toHaveText(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece']);
+  await expect(page.getByLabel('Unit').first().getByRole('option')).toHaveText(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece', 'pinch']);
 
   // AC-11: an empty form is refused with a message per missing field
   await page.getByRole('button', { name: 'Save meal' }).click();

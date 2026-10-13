@@ -68,6 +68,31 @@ describe('ShoppingListPage (T-12)', () => {
     await waitFor(() => expect(screen.getByRole('checkbox', { name: /Flour/ })).toBeChecked());
   });
 
+  it('the checkbox flips immediately, before the server answers, and follows the response afterwards (usable in the shop)', async () => {
+    plan.getWeek.mockResolvedValue(withList(entry({ name: 'Flour' })));
+    let answer!: (v: ReturnType<typeof withList>) => void;
+    plan.setTick.mockReturnValue(new Promise((resolve) => { answer = resolve; }));
+    const user = userEvent.setup({ advanceTimers: () => {} });
+    renderPage();
+    const box = await screen.findByRole('checkbox', { name: /Flour/ });
+    await user.click(box);
+    expect(box).toBeChecked(); // optimistic: the server has not answered yet
+    answer(withList(entry({ name: 'Flour', ticked: true })));
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: /Flour/ })).toBeChecked());
+  });
+
+  it('a failed tick request reverts the checkbox and shows the error', async () => {
+    const { PlanApiError } = await import('../../src/client/plan/planApi');
+    plan.getWeek.mockResolvedValue(withList(entry({ name: 'Flour' })));
+    plan.setTick.mockRejectedValue(new PlanApiError('ENTRY_NOT_FOUND', 404, 'This entry does not exist.'));
+    const user = userEvent.setup({ advanceTimers: () => {} });
+    renderPage();
+    const box = await screen.findByRole('checkbox', { name: /Flour/ });
+    await user.click(box);
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: /Flour/ })).not.toBeChecked());
+    expect(screen.getByRole('alert')).toHaveTextContent(/does not exist/i);
+  });
+
   it('a response where the tick was cleared shows unchecked (AC-19 at UI level)', async () => {
     plan.getWeek.mockResolvedValue(withList(entry({ name: 'Flour', ticked: true })));
     plan.setTick.mockResolvedValue(withList(entry({ name: 'Flour', ticked: false, quantity: 1200 })));

@@ -58,6 +58,20 @@ describe('buildShoppingList (T-4)', () => {
     expect(list.map((e) => e.unit).sort()).toEqual(['ml', 'piece']);
   });
 
+  it('adds pinches of the same ingredient but keeps them apart from spoons and grams', () => {
+    const list = buildShoppingList([
+      meal({ day: 1, ingredients: [ing('Salt', 1, 'pinch'), ing('Salt', 1, 'tsp')] }),
+      meal({ day: 2, servings: 8, ingredients: [ing('Salt', 1, 'pinch'), ing('Salt', 5, 'g')] }), // 8 / 4 servings: 2 pinch
+    ]);
+    const salt = list.filter((e) => e.name === 'Salt');
+    expect(salt.map((e) => [e.family, e.quantity, e.unit])).toEqual([
+      ['mass', 10, 'g'],
+      ['spoon', 1, 'tsp'],
+      ['pinch', 3, 'pinch'],
+    ]);
+    expect(salt[2].id).toBe('pinch:salt');
+  });
+
   it('rounds pieces up after summing (AC-21)', () => {
     const list = buildShoppingList([
       meal({ day: 1, servings: 6, baseServings: 4, ingredients: [ing('Onion', 1, 'piece')] }), // 1.5

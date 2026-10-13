@@ -18,6 +18,8 @@ export function toGrams(quantity: number, unit: Unit, gramsPerPiece?: number): n
       return quantity * 5;
     case 'tbsp':
       return quantity * 15;
+    case 'pinch':
+      return quantity * 0.3; // a pinch is about 0.3 g; negligible next to the rest of a recipe
     case 'piece':
       return gramsPerPiece ? quantity * gramsPerPiece : null;
   }

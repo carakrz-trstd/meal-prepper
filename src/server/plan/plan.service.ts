@@ -13,6 +13,14 @@ export interface PlanInput {
   mealId: number;
   servings: number;
   replace?: boolean;
+  /** Epic 3: the participants eating this meal; stored with the planned meal. Omit to leave the stored ones untouched. */
+  participantIds?: number[];
+}
+
+/** Epic 3 hook (AD-10): where the participants of a planned meal are stored and validated. */
+export interface ParticipantLinks {
+  allExist(participantIds: number[]): boolean;
+  set(plannedMealId: number, participantIds: number[]): void;
 }
 
 const validServings = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= 20;
@@ -24,6 +32,7 @@ export class PlanService {
   constructor(
     private readonly db: Db,
     private readonly clock: Clock,
+    private readonly links?: ParticipantLinks,
   ) {
     this.repo = new PlanRepository(db);
   }
@@ -56,6 +65,10 @@ export class PlanService {
     this.checkWeek(weekStart);
     this.checkDay(day);
     if (!validServings(input.servings)) throw new PlanError('INVALID_SERVINGS');
+    const participantIds = input.participantIds;
+    if (participantIds !== undefined && (!this.links || !participantIds.every(Number.isInteger) || !this.links.allExist(participantIds))) {
+      throw new PlanError('INVALID_PARTICIPANT');
+    }
 
     this.db.transaction(() => {
       const existing = this.repo.getDay(weekStart, day);
@@ -64,6 +77,7 @@ export class PlanService {
       if (existing) this.repo.update(existing.id, input.mealId, input.servings);
       else this.repo.insert(weekStart, day, input.mealId, input.servings);
       this.repo.setSetting('last_servings', String(input.servings));
+      if (participantIds !== undefined) this.links!.set(this.repo.getDay(weekStart, day)!.id, participantIds);
     })();
     return buildWeekView(this.repo, weekStart);
   }

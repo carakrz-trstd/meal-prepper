@@ -4,8 +4,9 @@ import path from 'node:path';
 import { startServer, type RunningServer } from '../src/server/main';
 
 /**
- * Boots the app for the Playwright run: fresh temp SQLite file, built client, and a tiny control endpoint
- * (`POST /restart` on CONTROL_PORT) so a test can restart the server on the same database file (AC-7).
+ * Boots the app for the Playwright run: fresh temp SQLite file, built client, and a tiny control endpoint on
+ * CONTROL_PORT: `POST /restart` restarts the server on the same database file (AC-7), `POST /reset-settings`
+ * clears the stored app settings.
  */
 const port = Number(process.env.PORT ?? 4173);
 const controlPort = Number(process.env.CONTROL_PORT ?? port + 2);
@@ -22,6 +23,12 @@ http
       await server.close();
       server = await startServer({ port, dbFile });
       res.end('restarted');
+      return;
+    }
+    // forget app settings (e.g. the last used servings) so that specs do not depend on each other's leftovers
+    if (req.method === 'POST' && req.url === '/reset-settings') {
+      server.db.exec('DELETE FROM app_setting');
+      res.end('reset');
       return;
     }
     res.statusCode = 404;

@@ -53,4 +53,5 @@ export type PlanErrorCode =
   | 'DAY_OCCUPIED'
   | 'DAY_EMPTY'
   | 'MEAL_ALREADY_PLANNED'
-  | 'ENTRY_NOT_FOUND';
+  | 'ENTRY_NOT_FOUND'
+  | 'INVALID_PARTICIPANT';

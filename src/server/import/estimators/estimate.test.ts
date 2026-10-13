@@ -28,6 +28,13 @@ describe('unit conversion for estimates (T-9)', () => {
     expect(toGrams(2, 'tsp')).toBe(10);
     expect(toGrams(2, 'tbsp')).toBe(30);
   });
+  it('a pinch counts as about 0.3 g, so a pinch of salt does not block an estimate', async () => {
+    expect(toGrams(1, 'pinch')).toBeCloseTo(0.3);
+    expect(toGrams(4, 'pinch')).toBeCloseTo(1.2);
+    const p = nutrition({ Salt: { kcalPer100g: 0 }, Rice: { kcalPer100g: 100 } });
+    expect(await estimateCalories([ing('Rice', 100, 'g'), ing('Salt', 1, 'pinch')], 1, p, signal())).toBe(100);
+  });
+
   it('piece needs a gram weight, otherwise null (no guess)', () => {
     expect(toGrams(2, 'piece')).toBeNull();
     expect(toGrams(2, 'piece', 60)).toBe(120);

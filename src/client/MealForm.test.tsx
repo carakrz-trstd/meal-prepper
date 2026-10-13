@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -39,10 +39,10 @@ describe('MealForm (T-13)', () => {
     expect(screen.getByLabelText('Base servings')).toHaveValue(4);
   });
 
-  it('offers exactly the seven units in the unit select (AC-12)', () => {
+  it('offers exactly the eight units in the unit select (AC-12)', () => {
     render(<MealForm mode="create" onSave={ok()} />);
     const options = within(screen.getByLabelText('Unit')).getAllByRole('option').map((o) => o.textContent);
-    expect(options).toEqual(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece']);
+    expect(options).toEqual(['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'piece', 'pinch']);
   });
 
   it('shows an error per missing field and does not call the API when submitting empty (AC-11)', async () => {
